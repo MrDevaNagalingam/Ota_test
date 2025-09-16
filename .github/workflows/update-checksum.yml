@@ -1,0 +1,39 @@
+name: Update OTA checksum
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  update-checksum:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout OTA repo
+        uses: actions/checkout@v3
+        with:
+          repository: MrDevaNagalingam/Ota_test
+          path: Ota_test
+
+      - name: Download GitHub ZIP
+        run: |
+          wget https://github.com/MrDevaNagalingam/Ota_test/archive/refs/heads/main.zip -O main.zip
+          sha256sum main.zip > checksum.txt
+          cat checksum.txt
+
+      - name: Push checksum to Ota_test_sha256
+        uses: actions/checkout@v3
+        with:
+          repository: MrDevaNagalingam/Ota_test_sha256
+          path: sha_repo
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update checksum.txt
+        run: |
+          cp checksum.txt sha_repo/
+          cd sha_repo
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add checksum.txt
+          git commit -m "Auto-update checksum $(date +%F_%T)" || echo "No changes to commit"
+          git push
