@@ -8,7 +8,6 @@ from struct import pack, unpack
 from datetime import datetime
 import threading
 
-
 # Configuration
 SERIAL_PORT = "/dev/ttymxc2"  # UART3
 BAUD_RATE = 57600
